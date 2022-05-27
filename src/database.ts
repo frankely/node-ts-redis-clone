@@ -9,6 +9,7 @@ export const NO_TRANSACTIONS_CODE = 0;
 export class Database {
   database: Map<string, string> = new Map<string, string>();
   transactions: Transaction[] = [];
+  valueOccurrences: [keyof: string][] = [];
 
   public set(name: string, value: string) {
     if (this.transactions.length === 0) {
@@ -87,6 +88,8 @@ export class Database {
     } else {
       const currentTransaction =
         this.transactions[this.transactions.length - 1];
+
+      //TODO: It seems like the occurrences count should be tracked when calling set/unset instead
       return [...currentTransaction.dataset.values()].filter((v) => v === value).length;
     }
   }
