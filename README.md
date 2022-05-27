@@ -21,6 +21,11 @@ npm run start
 
 *Make sure you run this command from the root folder where the package.json is located*
 
+
+## Current Limitations
+
+NUMEQUALTO does not work inside a transaction
+
 ## Other Documentation
 
 For more detailed commands see the documentation in the Coding challenge - In memory database.pdf file
