@@ -1,5 +1,5 @@
 type Transaction = {
-  commands: string[];
+  unsetKeys: string[];
   dataset: Map<string, string>;
 };
 
@@ -25,6 +25,11 @@ export class Database {
     } else {
       for (let i = this.transactions.length - 1; i >= 0; i--) {
         const transaction = this.transactions[i];
+
+        if (transaction.unsetKeys.includes(name)) {
+          return null;
+        }
+
         const value = transaction.dataset.get(name);
 
         if (value) {
@@ -35,18 +40,27 @@ export class Database {
     }
   }
   public unset(name: string) {
-    this.database.delete(name);
+    if (this.transactions.length === 0) {
+      this.database.delete(name);
+    } else {
+      const currentTransaction =
+        this.transactions[this.transactions.length - 1];
+      currentTransaction.unsetKeys.push(name);
+    }
   }
 
   public commitTransaction() {
     if (this.transactions.length === 0) {
       return NO_TRANSACTIONS_CODE;
     }
-
     const currentTransaction = this.transactions.pop();
 
     currentTransaction?.dataset.forEach((value, key) => {
       this.database.set(key, value);
+    });
+
+    currentTransaction?.unsetKeys.forEach((key) => {
+      this.database.delete(key);
     });
 
     return SUCCESSFUL_TRANSACTION_OPERATION_CODE;
@@ -61,7 +75,7 @@ export class Database {
   }
   public beginTransaction() {
     const transaction = {
-      commands: [],
+      unsetKeys: [],
       dataset: new Map<string, string>(this.database),
     };
     this.transactions.push(transaction);
