@@ -8,8 +8,7 @@ const rl = readline.createInterface({ input, output });
 const database = new Map<string, string>();
 
 function displayMessage(message: string) {
-  process.stdout.write(message);
-  process.stdout.write("\n");
+  console.log(message);
 }
 
 function set(name: string, value: string) {
@@ -55,23 +54,15 @@ function parseCommand(command: string) {
       break;
     }
     default: {
-      displayMessage("Invalid Command")
+      displayMessage("Invalid Command");
     }
   }
 }
 
-function requestCommand() {
-  rl.prompt();
-  rl.on("line", (command) => {
-    if (command.includes("END")) {
-      rl.close();
-      return;
-    } else {
-      parseCommand(command);
-      requestCommand();
-    }
-    rl.prompt();
-  });
-}
-
-requestCommand();
+rl.on("line", (line: string) => {
+  if (line === "END") {
+    rl.close();
+  } else {
+    parseCommand(line);
+  }
+});
