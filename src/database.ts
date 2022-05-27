@@ -82,6 +82,14 @@ export class Database {
   }
 
   public countValueOccurrences(value: string) {
-    return [...this.database.values()].filter((v) => v === value).length;
+    if (this.transactions.length === 0) {
+      return [...this.database.values()].filter((v) => v === value).length;
+    } else {
+
+      for (let i = this.transactions.length - 1; i >= 0; i--) {
+        //TODO: Ignore unset keys from the value occurrences
+      }
+      return [...this.database.values()].filter((v) => v === value).length;
+    }
   }
 }
