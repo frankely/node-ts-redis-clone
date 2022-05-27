@@ -85,11 +85,9 @@ export class Database {
     if (this.transactions.length === 0) {
       return [...this.database.values()].filter((v) => v === value).length;
     } else {
-
-      for (let i = this.transactions.length - 1; i >= 0; i--) {
-        //TODO: Ignore unset keys from the value occurrences
-      }
-      return [...this.database.values()].filter((v) => v === value).length;
+      const currentTransaction =
+        this.transactions[this.transactions.length - 1];
+      return [...currentTransaction.dataset.values()].filter((v) => v === value).length;
     }
   }
 }
