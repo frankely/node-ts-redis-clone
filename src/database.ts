@@ -1,5 +1,6 @@
 type Transaction = {
   commands: string[];
+  dataset: Map<string, string>;
 };
 
 const SUCCESSFUL_TRANSACTION_OPERATION_CODE = 1;
@@ -10,10 +11,28 @@ export class Database {
   transactions: Transaction[] = [];
 
   public set(name: string, value: string) {
-    this.database.set(name, value);
+    if (this.transactions.length === 0) {
+      this.database.set(name, value);
+    } else {
+      const currentTransaction =
+        this.transactions[this.transactions.length - 1];
+      currentTransaction.dataset.set(name, value);
+    }
   }
   public get(name: string) {
-    return this.database.get(name);
+    if (this.transactions.length === 0) {
+      return this.database.get(name);
+    } else {
+      for (let i = this.transactions.length - 1; i >= 0; i--) {
+        const transaction = this.transactions[i];
+        const value = transaction.dataset.get(name);
+
+        if (value) {
+          return value;
+        }
+      }
+      return this.database.get(name);
+    }
   }
   public unset(name: string) {
     this.database.delete(name);
@@ -23,7 +42,12 @@ export class Database {
     if (this.transactions.length === 0) {
       return NO_TRANSACTIONS_CODE;
     }
-    this.transactions.pop();
+
+    const currentTransaction = this.transactions.pop();
+
+    currentTransaction?.dataset.forEach((value, key) => {
+      this.database.set(key, value);
+    });
 
     return SUCCESSFUL_TRANSACTION_OPERATION_CODE;
   }
@@ -36,7 +60,11 @@ export class Database {
     return SUCCESSFUL_TRANSACTION_OPERATION_CODE;
   }
   public beginTransaction() {
-    throw new Error("Method not implemented.");
+    const transaction = {
+      commands: [],
+      dataset: new Map<string, string>(this.database),
+    };
+    this.transactions.push(transaction);
   }
 
   public countValueOccurrences(value: string) {
